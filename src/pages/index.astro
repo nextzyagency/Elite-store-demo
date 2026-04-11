@@ -1,0 +1,273 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar';
+import ProductGrid from '../components/ProductGrid';
+import CartDrawer from '../components/CartDrawer';
+import ProductModal from '../components/ProductModal';
+import ToastStack from '../components/ToastStack';
+import type { Product } from '../store/cartStore';
+
+// ─── Fetch Products from API (Manual ELITE) ──────────────────────────────────
+let fetchError = null;
+let rawData = [];
+
+try {
+  const apiUrl = import.meta.env.PUBLIC_SHEETS_API;
+  const response = await fetch(apiUrl);
+  if (!response.ok) throw new Error(`Status: ${response.status}`);
+  rawData = await response.json();
+} catch (error: any) {
+  console.error('[API] Error fetching products:', error.message);
+  fetchError = error.message;
+}
+
+const productos: Product[] = (rawData ?? []).map((p: any) => ({
+  id: String(p.id ?? p.ID ?? Math.random()),
+  name: p.nombre ?? p.name ?? 'Producto ELITE',
+  price: Number(p.precio ?? p.price ?? 0),
+  category: p.categoria ?? p.category ?? 'Colección',
+  image: p.imagen_url ?? p.image ?? 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
+  description: p.descripcion ?? p.description ?? '',
+  variantes: typeof p.variantes === 'string' ? JSON.parse(p.variantes) : (p.variantes ?? []),
+}));
+---
+
+<Layout title="ELITE | Luxury Essentials" description="Piezas únicas diseñadas para quienes aprecian la excelencia en cada detalle.">
+  <!-- Interactive Navbar (React Island) -->
+  <Navbar client:load />
+
+  <!-- ─── HERO SECTION ─────────────────────────────────────────── -->
+  <section
+    class="relative min-h-[92vh] flex items-center justify-center overflow-hidden"
+    aria-label="Hero"
+  >
+    <!-- Background Image -->
+    <div
+      class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80')] bg-cover bg-center"
+    ></div>
+    <!-- Dark overlay gradient -->
+    <div class="absolute inset-0 bg-gradient-to-b from-neutral-900/75 via-neutral-900/60 to-neutral-900/80"></div>
+
+    <!-- Hero Content -->
+    <div class="relative z-10 text-center px-6 max-w-4xl mx-auto mt-16">
+      <p
+        id="hero-eyebrow"
+        class="text-neutral-300 text-xs tracking-[0.5em] uppercase mb-8 opacity-0"
+      >
+        Nueva Colección 2026
+      </p>
+      <h1
+        id="hero-title"
+        class="text-5xl md:text-7xl lg:text-8xl font-light text-white tracking-tight leading-[1.05] mb-8 opacity-0"
+      >
+        Define tu <span class="font-semibold">estilo</span>
+      </h1>
+      <p
+        id="hero-subtitle"
+        class="text-neutral-300 text-lg md:text-xl font-light max-w-xl mx-auto mb-12 opacity-0"
+      >
+        Piezas únicas diseñadas para quienes aprecian la excelencia en cada detalle.
+      </p>
+      <a
+        id="hero-cta"
+        href="#productos"
+        class="inline-flex items-center gap-3 bg-white text-neutral-900 px-8 py-4 text-sm font-medium tracking-widest uppercase hover:bg-neutral-100 elite-transition opacity-0"
+      >
+        Explorar Colección
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </a>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0" id="hero-scroll">
+      <span class="text-neutral-400 text-xs tracking-widest uppercase">Scroll</span>
+      <div class="w-px h-10 bg-gradient-to-b from-neutral-400 to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- ─── PRODUCT SECTION ──────────────────────────────────────── -->
+  <main id="productos" class="max-w-7xl mx-auto px-6 lg:px-10 py-24 lg:py-32">
+    <div class="mb-14 text-center">
+      <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-3">Lo Mejor de</p>
+      <h2 class="text-3xl md:text-4xl font-light text-neutral-900">Nuestra Colección</h2>
+    </div>
+
+    {fetchError ? (
+      <div class="max-w-2xl mx-auto text-center py-20 border border-neutral-100 bg-white shadow-sm">
+        <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-neutral-50 text-neutral-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3 class="text-xl font-light text-neutral-900 mb-3">Conexión en pausa</h3>
+        <p class="text-neutral-500 text-sm mb-8 px-10 leading-relaxed">
+          Nuestra galería digital está siendo actualizada para ofrecerte la mejor experiencia. 
+          Por favor, intenta de nuevo en unos momentos.
+        </p>
+        <button 
+          onclick="window.location.reload()"
+          class="text-xs tracking-[0.3em] uppercase font-medium text-neutral-900 border-b border-neutral-900 pb-1 hover:text-neutral-500 hover:border-neutral-500 transition-colors"
+        >
+          Reintentar Acceso
+        </button>
+      </div>
+    ) : productos.length === 0 ? (
+      <div class="max-w-2xl mx-auto text-center py-20 border border-neutral-100 bg-neutral-50/50">
+        <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white text-neutral-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+        </div>
+        <h3 class="text-xl font-light text-neutral-900 mb-3">Colección próxima</h3>
+        <p class="text-neutral-500 text-sm mb-0 px-10 leading-relaxed">
+          Estamos preparando piezas exclusivas para ti. Mantente atento a nuestras novedades.
+        </p>
+      </div>
+    ) : (
+      <ProductGrid client:load productos={productos} />
+    )}
+  </main>
+
+  <!-- ─── ABOUT SECTION ────────────────────────────────────────── -->
+  <section
+    id="sobre"
+    class="bg-neutral-900 text-white py-24 lg:py-36"
+  >
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-6">Sobre Nosotros</p>
+        <h2 class="text-4xl md:text-5xl font-light leading-tight mb-8">
+          Excelencia<br /><span class="font-semibold">en cada pieza</span>
+        </h2>
+        <p class="text-neutral-300 leading-relaxed mb-8 max-w-lg">
+          En ELITE, seleccionamos cuidadosamente cada artículo para garantizar la más alta calidad.
+          Creemos que el lujo no es un exceso, sino una elección consciente.
+        </p>
+        <div class="grid grid-cols-3 gap-8 border-t border-neutral-700 pt-8">
+          {[
+            { num: '200+', label: 'Productos' },
+            { num: '50K+', label: 'Clientes' },
+            { num: '6', label: 'Años' },
+          ].map(stat => (
+            <div>
+              <p class="text-2xl font-semibold">{stat.num}</p>
+              <p class="text-xs text-neutral-400 mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div class="aspect-square overflow-hidden bg-neutral-800">
+        <img
+          src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80"
+          alt="ELITE brand identity"
+          class="w-full h-full object-cover opacity-70 hover:opacity-100 elite-transition"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CONTACT SECTION ─────────────────────────────────────── -->
+  <section id="contacto" class="py-24 lg:py-32">
+    <div class="max-w-2xl mx-auto px-6 text-center">
+      <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-4">Contacto</p>
+      <h2 class="text-3xl md:text-4xl font-light text-neutral-900 mb-6">
+        ¿Tienes preguntas?
+      </h2>
+      <p class="text-neutral-500 mb-10 leading-relaxed">
+        Estamos aquí para ayudarte. Escríbenos y te responderemos en menos de 24 horas.
+      </p>
+      <form class="flex flex-col gap-4" id="contact-form" onsubmit="event.preventDefault()">
+        <input
+          type="text"
+          id="contact-name"
+          placeholder="Tu nombre"
+          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent"
+        />
+        <input
+          type="email"
+          id="contact-email"
+          placeholder="Tu email"
+          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent"
+        />
+        <textarea
+          id="contact-message"
+          rows={4}
+          placeholder="Tu mensaje"
+          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent resize-none"
+        ></textarea>
+        <button
+          type="submit"
+          id="contact-submit"
+          class="w-full py-4 bg-neutral-900 text-white text-sm font-medium tracking-widest uppercase hover:bg-neutral-700 elite-transition"
+        >
+          Enviar Mensaje
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <footer class="bg-neutral-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+        <div>
+          <span class="text-2xl font-semibold tracking-[0.3em]">ELITE</span>
+          <p class="text-neutral-400 text-sm mt-2">Luxury Essentials Since 2020</p>
+        </div>
+        <nav class="flex flex-wrap items-center gap-6" aria-label="Footer navigation">
+          {['Instagram', 'Pinterest', 'LinkedIn'].map(social => (
+            <a
+              href="#"
+              class="text-sm text-neutral-400 hover:text-white elite-transition"
+            >
+              {social}
+            </a>
+          ))}
+        </nav>
+      </div>
+      <div class="mt-12 pt-8 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <p>© 2026 ELITE. Todos los derechos reservados.</p>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-neutral-300 elite-transition">Privacidad</a>
+          <a href="#" class="hover:text-neutral-300 elite-transition">Términos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── INTERACTIVE REACT ISLANDS ──────────────────────────── -->
+  <CartDrawer client:load />
+  <ProductModal client:load />
+  <ToastStack client:load />
+</Layout>
+
+<script>
+  import gsap from 'gsap';
+
+  const tl = gsap.timeline({ delay: 0.2 });
+  tl.to('#hero-eyebrow', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' })
+    .to('#hero-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
+    .to('#hero-subtitle', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
+    .to('#hero-cta', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+    .to('#hero-scroll', { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.2');
+
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = (document.getElementById('contact-name') as HTMLInputElement)?.value || '';
+      const email = (document.getElementById('contact-email') as HTMLInputElement)?.value || '';
+      const message = (document.getElementById('contact-message') as HTMLTextAreaElement)?.value || '';
+      
+      const text = `Hola, mi nombre es ${name}. Mi email es ${email}. Mensaje: ${message}`;
+      const url = `https://wa.me/573052487564?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    });
+  }
+</script>
