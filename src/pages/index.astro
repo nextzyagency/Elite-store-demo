@@ -1,83 +1,62 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ProductGrid from '../components/ProductGrid';
-import type { Product } from '../store/cartStore';
-
-// ─── Fetch Products from API (Manual ELITE) ──────────────────────────────────
-let fetchError = null;
-let rawData = [];
-
-try {
-  const apiUrl = import.meta.env.PUBLIC_SHEETS_API;
-  const response = await fetch(apiUrl);
-  if (!response.ok) throw new Error(`Status: ${response.status}`);
-  rawData = await response.json();
-} catch (error: any) {
-  console.error('[API] Error fetching products:', error.message);
-  fetchError = error.message;
-}
-
-const productos: Product[] = (rawData ?? []).map((p: any) => ({
-  id: String(p.id ?? p.ID ?? Math.random()),
-  name: p.nombre ?? p.name ?? 'Producto ELITE',
-  price: Number(p.precio ?? p.price ?? 0),
-  category: p.categoria ?? p.category ?? 'Colección',
-  image: p.imagen_url ?? p.image ?? 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80',
-  description: p.descripcion ?? p.description ?? '',
-  variantes: typeof p.variantes === 'string' ? JSON.parse(p.variantes) : (p.variantes ?? []),
-}));
+import { featuredProducts } from '../data/productos';
 ---
 
-<Layout title="ELITE | Luxury Essentials" description="Piezas únicas diseñadas para quienes aprecian la excelencia en cada detalle.">
-  <!-- ─── HERO SECTION ─────────────────────────────────────────── -->
+<Layout
+  title="ELITE | Gorras, Camisetas y Pantalones de Lujo"
+  description="Descubre la colección ELITE: gorras, camisetas y pantalones de alta calidad diseñados para quienes aprecian la excelencia en cada detalle."
+>
+  <!-- ─── HERO ──────────────────────────────────────────────────────── -->
   <section
-    class="relative min-h-[92vh] flex items-center justify-center overflow-hidden"
+    class="relative min-h-[96vh] flex items-center justify-center overflow-hidden"
     aria-label="Hero"
   >
-    <!-- Background Image -->
+    <!-- Background -->
     <div
       class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80')] bg-cover bg-center"
     ></div>
-    <!-- Dark overlay gradient -->
-    <div class="absolute inset-0 bg-gradient-to-b from-neutral-900/75 via-neutral-900/60 to-neutral-900/80"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-neutral-900/80 via-neutral-900/65 to-neutral-900/85"></div>
 
-    <!-- Hero Content -->
-    <div class="relative z-10 text-center px-6 max-w-4xl mx-auto mt-16">
+    <!-- Content -->
+    <div class="relative z-10 text-center px-6 max-w-5xl mx-auto mt-16">
       <p
         id="hero-eyebrow"
-        class="text-neutral-300 text-xs tracking-[0.5em] uppercase mb-8 opacity-0"
+        class="text-neutral-300 text-xs tracking-[0.6em] uppercase mb-8 opacity-0"
       >
-        Nueva Colección 2026
+        Colección Primavera 2026
       </p>
       <h1
         id="hero-title"
         class="text-5xl md:text-7xl lg:text-8xl font-light text-white tracking-tight leading-[1.05] mb-8 opacity-0"
       >
-        Define tu <span class="font-semibold">estilo</span>
+        Define tu <span class="font-semibold italic">estilo</span>
       </h1>
       <p
         id="hero-subtitle"
         class="text-neutral-300 text-lg md:text-xl font-light max-w-xl mx-auto mb-12 opacity-0"
       >
-        Piezas únicas diseñadas para quienes aprecian la excelencia en cada detalle.
+        Gorras, camisetas y pantalones de alta calidad para quienes aprecian la excelencia en cada detalle.
       </p>
-      <a
-        id="hero-cta"
-        href="#productos"
-        class="inline-flex items-center gap-3 bg-white text-neutral-900 px-8 py-4 text-sm font-medium tracking-widest uppercase hover:bg-neutral-100 elite-transition opacity-0"
-      >
-        Explorar Colección
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
+      <div id="hero-ctas" class="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0">
+        <a
+          href="#destacados"
+          class="inline-flex items-center gap-3 bg-white text-neutral-900 px-8 py-4 text-sm font-medium tracking-widest uppercase hover:bg-neutral-100 elite-transition"
+          title="Explorar colección ELITE"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </a>
+          Explorar Colección
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </a>
+        <a
+          href="/camisetas"
+          class="inline-flex items-center gap-3 border border-white/40 text-white px-8 py-4 text-sm font-medium tracking-widest uppercase hover:bg-white/10 elite-transition"
+          title="Ver camisetas ELITE"
+        >
+          Ver Camisetas
+        </a>
+      </div>
     </div>
 
     <!-- Scroll indicator -->
@@ -87,59 +66,127 @@ const productos: Product[] = (rawData ?? []).map((p: any) => ({
     </div>
   </section>
 
-  <!-- ─── PRODUCT SECTION ──────────────────────────────────────── -->
-  <main id="productos" class="max-w-7xl mx-auto px-6 lg:px-10 py-24 lg:py-32">
-    <div class="mb-14 text-center">
-      <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-3">Lo Mejor de</p>
-      <h2 class="text-3xl md:text-4xl font-light text-neutral-900">Nuestra Colección</h2>
+  <!-- ─── CATEGORY NAV ─────────────────────────────────────────────── -->
+  <section class="py-16 bg-neutral-900 text-white" aria-label="Categorías">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-700">
+        {[
+          { href: '/gorras', label: 'Gorras', count: '4 estilos', icon: '🧢' },
+          { href: '/camisetas', label: 'Camisetas', count: '4 estilos', icon: '👕' },
+          { href: '/pantalones', label: 'Pantalones', count: '4 estilos', icon: '👖' },
+        ].map(cat => (
+          <a
+            href={cat.href}
+            title={`Ver colección de ${cat.label} ELITE`}
+            class="group flex items-center justify-between px-10 py-10 hover:bg-neutral-800 elite-transition"
+          >
+            <div>
+              <p class="text-xs tracking-[0.4em] uppercase text-neutral-500 mb-2">{cat.count}</p>
+              <h2 class="text-2xl font-light">{cat.label}</h2>
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 text-neutral-500 group-hover:text-white group-hover:translate-x-1 elite-transition"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        ))}
+      </div>
     </div>
+  </section>
 
-    {fetchError ? (
-      <div class="max-w-2xl mx-auto text-center py-20 border border-neutral-100 bg-white shadow-sm">
-        <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-neutral-50 text-neutral-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </div>
-        <h3 class="text-xl font-light text-neutral-900 mb-3">Conexión en pausa</h3>
-        <p class="text-neutral-500 text-sm mb-8 px-10 leading-relaxed">
-          Nuestra galería digital está siendo actualizada para ofrecerte la mejor experiencia. 
-          Por favor, intenta de nuevo en unos momentos.
-        </p>
-        <button 
-          onclick="window.location.reload()"
-          class="text-xs tracking-[0.3em] uppercase font-medium text-neutral-900 border-b border-neutral-900 pb-1 hover:text-neutral-500 hover:border-neutral-500 transition-colors"
-        >
-          Reintentar Acceso
-        </button>
+  <!-- ─── FEATURED PRODUCTS ─────────────────────────────────────────── -->
+  <section id="destacados" class="py-24 lg:py-32" aria-labelledby="featured-heading">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+      <div class="mb-16 text-center">
+        <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-4">Selección Curada</p>
+        <h2 id="featured-heading" class="text-3xl md:text-5xl font-light text-neutral-900">Productos Destacados</h2>
+        <div class="w-12 h-px bg-neutral-300 mx-auto mt-6"></div>
       </div>
-    ) : productos.length === 0 ? (
-      <div class="max-w-2xl mx-auto text-center py-20 border border-neutral-100 bg-neutral-50/50">
-        <div class="mb-6 inline-flex items-center justify-center w-12 h-12 rounded-full bg-white text-neutral-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-        </div>
-        <h3 class="text-xl font-light text-neutral-900 mb-3">Colección próxima</h3>
-        <p class="text-neutral-500 text-sm mb-0 px-10 leading-relaxed">
-          Estamos preparando piezas exclusivas para ti. Mantente atento a nuestras novedades.
-        </p>
-      </div>
-    ) : (
-      <ProductGrid client:load productos={productos} />
-    )}
-  </main>
 
-  <!-- ─── ABOUT SECTION ────────────────────────────────────────── -->
-  <section
-    id="sobre"
-    class="bg-neutral-900 text-white py-24 lg:py-36"
-  >
-    <div class="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-16 items-center">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+        {featuredProducts.map((product, idx) => (
+          <article class="featured-card group" id={`featured-${product.id}`}>
+            <a
+              href={`/productos/${product.id}`}
+              title={`Ver ${product.name}`}
+              class="relative block aspect-[3/4] overflow-hidden bg-neutral-100 mb-6"
+            >
+              <img
+                src={product.image}
+                alt={product.name}
+                class="w-full h-full object-cover elite-transition group-hover:scale-105"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+              />
+              <div class="absolute inset-0 bg-neutral-900/0 group-hover:bg-neutral-900/15 elite-transition"></div>
+              <!-- Category badge -->
+              <span class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-neutral-900 text-[10px] font-semibold tracking-[0.2em] uppercase px-3 py-1.5 capitalize">
+                {product.category}
+              </span>
+              <div class="absolute inset-0 flex items-end p-6 opacity-0 group-hover:opacity-100 elite-transition">
+                <span class="w-full bg-white text-neutral-900 text-xs font-medium tracking-widest uppercase text-center py-3">
+                  Ver Detalle
+                </span>
+              </div>
+            </a>
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <a href={`/productos/${product.id}`} title={product.name} class="hover:opacity-70 transition-opacity">
+                  <h3 class="text-base font-medium text-neutral-900 leading-snug">{product.name}</h3>
+                </a>
+                <p class="text-sm text-neutral-500 mt-1.5">
+                  €{product.price.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <button
+                data-featured-id={product.id}
+                data-featured-product={JSON.stringify(product)}
+                aria-label={`Añadir ${product.name} al carrito`}
+                class="featured-add-btn flex-shrink-0 p-3 bg-neutral-900 text-white hover:bg-neutral-700 active:scale-95 elite-transition"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- CTA links to category pages -->
+      <div class="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4">
+        {[
+          { href: '/gorras', label: 'Ver todas las gorras' },
+          { href: '/camisetas', label: 'Ver todas las camisetas' },
+          { href: '/pantalones', label: 'Ver todos los pantalones' },
+        ].map(link => (
+          <a
+            href={link.href}
+            title={link.label}
+            class="text-xs tracking-[0.3em] uppercase font-medium text-neutral-900 border-b border-neutral-900 pb-1 hover:text-neutral-500 hover:border-neutral-500 elite-transition"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABOUT US ──────────────────────────────────────────────────── -->
+  <section id="nosotros" class="bg-neutral-900 text-white py-24 lg:py-36" aria-labelledby="about-heading">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
       <div>
         <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-6">Sobre Nosotros</p>
-        <h2 class="text-4xl md:text-5xl font-light leading-tight mb-8">
+        <h2 id="about-heading" class="text-4xl md:text-5xl font-light leading-tight mb-8">
           Excelencia<br /><span class="font-semibold">en cada pieza</span>
         </h2>
-        <p class="text-neutral-300 leading-relaxed mb-8 max-w-lg">
-          En ELITE, seleccionamos cuidadosamente cada artículo para garantizar la más alta calidad.
-          Creemos que el lujo no es un exceso, sino una elección consciente.
+        <p class="text-neutral-300 leading-relaxed mb-6 max-w-lg">
+          En ELITE nacimos de una obsesión: crear ropa que dure, que se sienta premium y que diga algo sobre quien la lleva. Seleccionamos materiales de primera calidad y trabajamos con talleres de pequeña escala que priorizan el oficio sobre la producción en masa.
+        </p>
+        <p class="text-neutral-400 leading-relaxed mb-10 max-w-lg">
+          Cada gorra, camiseta y pantalón pasa por un control de calidad exhaustivo antes de llegar a tus manos. Esto no es fast fashion. Esto es ELITE.
         </p>
         <div class="grid grid-cols-3 gap-8 border-t border-neutral-700 pt-8">
           {[
@@ -148,106 +195,216 @@ const productos: Product[] = (rawData ?? []).map((p: any) => ({
             { num: '6', label: 'Años' },
           ].map(stat => (
             <div>
-              <p class="text-2xl font-semibold">{stat.num}</p>
+              <p class="text-2xl font-semibold text-white">{stat.num}</p>
               <p class="text-xs text-neutral-400 mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
       </div>
-      <div class="aspect-square overflow-hidden bg-neutral-800">
-        <img
-          src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80"
-          alt="ELITE brand identity"
-          class="w-full h-full object-cover opacity-70 hover:opacity-100 elite-transition"
-          loading="lazy"
-        />
+      <div class="relative">
+        <div class="aspect-square overflow-hidden bg-neutral-800">
+          <img
+            src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80"
+            alt="Taller ELITE — proceso de confección de alta calidad"
+            class="w-full h-full object-cover opacity-80 hover:opacity-100 elite-transition"
+            loading="lazy"
+          />
+        </div>
+        <!-- Floating accent -->
+        <div class="absolute -bottom-6 -right-6 w-32 h-32 border border-neutral-600 hidden lg:block"></div>
       </div>
     </div>
   </section>
 
-  <!-- ─── CONTACT SECTION ─────────────────────────────────────── -->
-  <section id="contacto" class="py-24 lg:py-32">
-    <div class="max-w-2xl mx-auto px-6 text-center">
-      <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-4">Contacto</p>
-      <h2 class="text-3xl md:text-4xl font-light text-neutral-900 mb-6">
-        ¿Tienes preguntas?
-      </h2>
-      <p class="text-neutral-500 mb-10 leading-relaxed">
-        Estamos aquí para ayudarte. Escríbenos y te responderemos en menos de 24 horas.
-      </p>
-      <form class="flex flex-col gap-4" id="contact-form" onsubmit="event.preventDefault()">
-        <input
-          type="text"
-          id="contact-name"
-          placeholder="Tu nombre"
-          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent"
-        />
-        <input
-          type="email"
-          id="contact-email"
-          placeholder="Tu email"
-          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent"
-        />
-        <textarea
-          id="contact-message"
-          rows={4}
-          placeholder="Tu mensaje"
-          class="w-full px-5 py-4 border border-neutral-200 text-sm focus:outline-none focus:border-neutral-900 elite-transition bg-transparent resize-none"
-        ></textarea>
-        <button
-          type="submit"
-          id="contact-submit"
-          class="w-full py-4 bg-neutral-900 text-white text-sm font-medium tracking-widest uppercase hover:bg-neutral-700 elite-transition"
-        >
-          Enviar Mensaje
-        </button>
-      </form>
+  <!-- ─── REVIEWS ───────────────────────────────────────────────────── -->
+  <section id="resenas" class="py-24 lg:py-32 bg-[#fafafa]" aria-labelledby="reviews-heading">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+      <div class="mb-16 text-center">
+        <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-4">Lo que dicen</p>
+        <h2 id="reviews-heading" class="text-3xl md:text-5xl font-light text-neutral-900">Nuestros Clientes</h2>
+        <div class="w-12 h-px bg-neutral-300 mx-auto mt-6"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {[
+          {
+            name: 'Alejandro M.',
+            location: 'Madrid, España',
+            rating: 5,
+            product: 'Camiseta Elite Oversized',
+            review:
+              'Calidad increíble. La tela es exactamente lo que prometen — suave, resistente y con una caída perfecta. Llevo tres lavados y sigue como el primer día. Definitivamente mi marca de referencia.',
+          },
+          {
+            name: 'Sofía R.',
+            location: 'Ciudad de México',
+            rating: 5,
+            product: 'Gorra Elite Classic',
+            review:
+              'Llevaba meses buscando una gorra que no pareciera de mercado masivo. La Elite Classic superó todas mis expectativas. El acabado del bordado y la correa de cuero son de otro nivel.',
+          },
+          {
+            name: 'Marcos T.',
+            location: 'Buenos Aires, Argentina',
+            rating: 5,
+            product: 'Pantalón Elite Chino',
+            review:
+              'El chino más cómodo y elegante que he tenido. Lo uso tanto para una reunión de trabajo como para salir el fin de semana. Inversión que vale cada peso.',
+          },
+        ].map((review, i) => (
+          <article
+            class="review-card border border-neutral-100 bg-white p-8 flex flex-col gap-6"
+            id={`review-${i}`}
+          >
+            <!-- Stars -->
+            <div class="flex items-center gap-1" aria-label={`${review.rating} estrellas`}>
+              {Array.from({ length: review.rating }).map(() => (
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-neutral-900" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+
+            <blockquote class="text-neutral-600 text-sm leading-relaxed flex-1">
+              "{review.review}"
+            </blockquote>
+
+            <div class="border-t border-neutral-100 pt-6 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-neutral-900">{review.name}</p>
+                <p class="text-xs text-neutral-400 mt-0.5">{review.location}</p>
+              </div>
+              <p class="text-[10px] tracking-[0.15em] uppercase text-neutral-400 text-right max-w-[100px]">
+                {review.product}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- Trust indicators -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-neutral-100 pt-16">
+        {[
+          { label: 'Envío Gratuito', sublabel: 'En pedidos +€200' },
+          { label: 'Devoluciones', sublabel: '30 días sin preguntas' },
+          { label: 'Calidad Garantizada', sublabel: '2 años de garantía' },
+          { label: 'Pago Seguro', sublabel: 'Encriptación SSL' },
+        ].map(item => (
+          <div class="text-center">
+            <p class="text-sm font-medium text-neutral-900">{item.label}</p>
+            <p class="text-xs text-neutral-400 mt-1">{item.sublabel}</p>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <!-- ─── FOOTER ───────────────────────────────────────────────────── -->
   <footer class="bg-neutral-900 text-white py-16">
     <div class="max-w-7xl mx-auto px-6 lg:px-10">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-        <div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="md:col-span-2">
           <span class="text-2xl font-semibold tracking-[0.3em]">ELITE</span>
-          <p class="text-neutral-400 text-sm mt-2">Luxury Essentials Since 2020</p>
+          <p class="text-neutral-400 text-sm mt-3 max-w-sm leading-relaxed">
+            Gorras, camisetas y pantalones de alta calidad. Diseñados para quienes aprecian la excelencia en cada detalle.
+          </p>
         </div>
-        <nav class="flex flex-wrap items-center gap-6" aria-label="Footer navigation">
-          {['Instagram', 'Pinterest', 'LinkedIn'].map(social => (
-            <a
-              href="#"
-              class="text-sm text-neutral-400 hover:text-white elite-transition"
-            >
-              {social}
-            </a>
-          ))}
-        </nav>
+        <div>
+          <p class="text-xs tracking-[0.3em] uppercase text-neutral-500 mb-5">Colección</p>
+          <nav class="flex flex-col gap-3" aria-label="Colección footer">
+            {[
+              { href: '/gorras', label: 'Gorras' },
+              { href: '/camisetas', label: 'Camisetas' },
+              { href: '/pantalones', label: 'Pantalones' },
+            ].map(l => (
+              <a href={l.href} title={l.label} class="text-sm text-neutral-400 hover:text-white elite-transition">{l.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div>
+          <p class="text-xs tracking-[0.3em] uppercase text-neutral-500 mb-5">Síguenos</p>
+          <nav class="flex flex-col gap-3" aria-label="Redes sociales">
+            {['Instagram', 'Pinterest', 'TikTok'].map(social => (
+              <a href="#" title={`ELITE en ${social}`} class="text-sm text-neutral-400 hover:text-white elite-transition">{social}</a>
+            ))}
+          </nav>
+        </div>
       </div>
-      <div class="mt-12 pt-8 border-t border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+      <div class="border-t border-neutral-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
         <p>© 2026 ELITE. Todos los derechos reservados.</p>
         <div class="flex gap-6">
-          <a href="#" class="hover:text-neutral-300 elite-transition">Privacidad</a>
-          <a href="#" class="hover:text-neutral-300 elite-transition">Términos</a>
+          <a href="#" title="Política de privacidad" class="hover:text-neutral-300 elite-transition">Privacidad</a>
+          <a href="#" title="Términos y condiciones" class="hover:text-neutral-300 elite-transition">Términos</a>
+          <a href="#" title="Política de cookies" class="hover:text-neutral-300 elite-transition">Cookies</a>
         </div>
       </div>
     </div>
   </footer>
 </Layout>
 
-<!-- ─── HERO GSAP ANIMATIONS ─────────────────────────────────────────────── -->
+<!-- ─── GSAP ANIMATIONS ──────────────────────────────────────────────────────── -->
 <script>
   import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { addToCart, isCartOpen, selectedProduct } from '../store/cartStore';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   function initAnimations() {
+    // Hero entrance
     const tl = gsap.timeline({ delay: 0.2 });
     tl.to('#hero-eyebrow', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' })
       .to('#hero-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
       .to('#hero-subtitle', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.5')
-      .to('#hero-cta', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+      .to('#hero-ctas', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
       .to('#hero-scroll', { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.2');
+
+    // Featured cards scroll reveal
+    gsap.utils.toArray<HTMLElement>('.featured-card').forEach((card, i) => {
+      gsap.from(card, {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        delay: i * 0.12,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: card, start: 'top 90%', once: true },
+      });
+    });
+
+    // Review cards scroll reveal
+    gsap.utils.toArray<HTMLElement>('.review-card').forEach((card, i) => {
+      gsap.from(card, {
+        y: 30,
+        opacity: 0,
+        duration: 0.7,
+        delay: i * 0.1,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: card, start: 'top 92%', once: true },
+      });
+    });
+
+    // Featured add-to-cart buttons
+    document.querySelectorAll<HTMLButtonElement>('.featured-add-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const raw = btn.dataset.featuredProduct;
+        if (!raw) return;
+        const product = JSON.parse(raw);
+        if (product.variantes && product.variantes.length > 0) {
+          selectedProduct.set(product);
+        } else {
+          addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            category: product.category,
+          });
+          isCartOpen.set(true);
+        }
+      });
+    });
   }
 
-  // Run on first load and on navigation
   document.addEventListener('astro:page-load', initAnimations);
 </script>

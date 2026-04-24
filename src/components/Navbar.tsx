@@ -42,9 +42,10 @@ export default function Navbar() {
   }, [count]);
 
   const navLinks = [
-    { href: '/#productos', label: 'Colección' },
-    { href: '/#sobre', label: 'Nosotros' },
-    { href: '/#contacto', label: 'Contacto' },
+    { href: '/gorras', label: 'Gorras' },
+    { href: '/camisetas', label: 'Camisetas' },
+    { href: '/pantalones', label: 'Pantalones' },
+    { href: '/#nosotros', label: 'Nosotros' },
   ];
 
   return (

@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductGrid from '../../components/ProductGrid';
+import { gorras } from '../../data/productos';
+---
+
+<Layout
+  title="Gorras de Lujo | ELITE — Colección Premium"
+  description="Gorras ELITE de alta calidad. Selección de gorras premium en algodón, lana y canvas para quienes aprecian los detalles. Envío gratuito en pedidos +€200."
+>
+  <!-- ─── HERO ──────────────────────────────────────────────────── -->
+  <section
+    class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-neutral-900 text-white"
+    aria-label="Gorras ELITE"
+  >
+    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=1920&q=80')] bg-cover bg-center opacity-20"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+      <nav class="flex items-center gap-2 mb-10 text-xs tracking-widest uppercase text-neutral-500" aria-label="Breadcrumb">
+        <a href="/" title="Inicio ELITE" class="hover:text-neutral-300 elite-transition">Inicio</a>
+        <span>/</span>
+        <span class="text-neutral-300">Gorras</span>
+      </nav>
+      <p class="text-xs tracking-[0.4em] uppercase text-neutral-400 mb-5 page-hero-eyebrow opacity-0">Colección</p>
+      <h1 class="text-5xl md:text-7xl font-light tracking-tight leading-tight mb-6 page-hero-title opacity-0">
+        Gorras <span class="font-semibold italic">ELITE</span>
+      </h1>
+      <p class="text-neutral-300 text-lg font-light max-w-xl page-hero-sub opacity-0">
+        Craftsmanship en cada panel. Gorras diseñadas para quienes entienden que el detalle lo es todo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── PRODUCT GRID ─────────────────────────────────────────── -->
+  <main id="gorras-grid" class="max-w-7xl mx-auto px-6 lg:px-10 py-24 lg:py-32">
+    <ProductGrid client:load productos={gorras} />
+  </main>
+
+  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <footer class="bg-neutral-900 text-white py-16">
+    <div class="max-w-7xl mx-auto px-6 lg:px-10">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="md:col-span-2">
+          <span class="text-2xl font-semibold tracking-[0.3em]">ELITE</span>
+          <p class="text-neutral-400 text-sm mt-3 max-w-sm leading-relaxed">
+            Gorras, camisetas y pantalones de alta calidad. Diseñados para quienes aprecian la excelencia en cada detalle.
+          </p>
+        </div>
+        <div>
+          <p class="text-xs tracking-[0.3em] uppercase text-neutral-500 mb-5">Colección</p>
+          <nav class="flex flex-col gap-3" aria-label="Colección footer">
+            {[
+              { href: '/gorras', label: 'Gorras' },
+              { href: '/camisetas', label: 'Camisetas' },
+              { href: '/pantalones', label: 'Pantalones' },
+            ].map(l => (
+              <a href={l.href} title={l.label} class="text-sm text-neutral-400 hover:text-white elite-transition">{l.label}</a>
+            ))}
+          </nav>
+        </div>
+        <div>
+          <p class="text-xs tracking-[0.3em] uppercase text-neutral-500 mb-5">Síguenos</p>
+          <nav class="flex flex-col gap-3" aria-label="Redes sociales">
+            {['Instagram', 'Pinterest', 'TikTok'].map(social => (
+              <a href="#" title={`ELITE en ${social}`} class="text-sm text-neutral-400 hover:text-white elite-transition">{social}</a>
+            ))}
+          </nav>
+        </div>
+      </div>
+      <div class="border-t border-neutral-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <p>© 2026 ELITE. Todos los derechos reservados.</p>
+        <div class="flex gap-6">
+          <a href="#" title="Política de privacidad" class="hover:text-neutral-300 elite-transition">Privacidad</a>
+          <a href="#" title="Términos y condiciones" class="hover:text-neutral-300 elite-transition">Términos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<script>
+  import gsap from 'gsap';
+
+  function initPage() {
+    const tl = gsap.timeline({ delay: 0.1 });
+    tl.to('.page-hero-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+      .to('.page-hero-title', { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.3')
+      .to('.page-hero-sub', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+  }
+  document.addEventListener('astro:page-load', initPage);
+</script>
